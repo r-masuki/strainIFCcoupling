@@ -11,10 +11,8 @@ from ase.io import read
 from ase import Atoms
 from ase.cell import Cell
 
-
 import json
 import copy
-
 
 class ModelWithStrain:
     """Calculate harmonic and anharmonic interatomic force constants.
@@ -63,9 +61,34 @@ class ModelWithStrain:
 
     @property
     def supercell(self):
-        "Getter of supercell."]
+        "Getter of supercell."
         return self._supercell
+    
+    def _get_alm_input(self):
+        BOHR_IN_AA = 0.52917721067
+        lavec = self.supercell.get_cell() / BOHR_IN_AA
+        xcoord = self.supercell.get_scaled_positions()
+        numbers = self.supercell.get_atomic_numbers()
+        crystal = (lavec, xcoord, numbers)
 
+        return crystal
+    
+    def suggest_displacements(self):
+        crystal = self._get_alm_input()
+        print("cystal")
+        print(crystal)
+        with ALM(*crystal) as alm:
+            print("ALM")
+            maxorder = 1
+            num_elems = np.size(np.unique(self.supercell.get_atomic_numbers()))
+            cutoff_radius = np.full([maxorder, num_elems, num_elems], -1, dtype=int)
+            alm.define(maxorder, cutoff_radius, symmetrization_basis="Lattice")
+            print("define")
+            alm.set_verbosity(0)
+            alm.suggest()
+
+            print(alm.getmap_primitive_to_supercell())
+            print(alm.get_displacement_patterns(alm.maxorder))
 
 
 eta = 0.005
@@ -77,18 +100,24 @@ print(json_object["strain_modes"][0]["id"])
 
 supercell = read("../temp/POSCAR_BTO222")
 
-print(supercell.get_cell()[:])
+# print(supercell.get_cell()[:])
 
-print(type(supercell))
+# print(type(supercell))
 
-print(json_object["strain_modes"])
+# print(json_object["strain_modes"])
 for item in json_object["strain_modes"]:
     print(item)
     strain_cell = ModelWithStrain(item["id"], eta*np.array(item["mode"]), supercell)
 
-    print(strain_cell._supercell.get_cell().cellpar())
-    print(strain_cell._supercell.get_cell()[:])
-    print(strain_cell._supercell.get_scaled_positions())
-    print(type(strain_cell._supercell.get_positions()))
+    # print(strain_cell._supercell.get_cell().cellpar())
+    # print(strain_cell._supercell.get_cell()[:])
+    # print(strain_cell._supercell.get_scaled_positions())
+    # print(type(strain_cell._supercell.get_positions()))
 
-print(type(strain_cell._supercell))
+    strain_cell.suggest_displacements()
+
+
+
+
+
+
