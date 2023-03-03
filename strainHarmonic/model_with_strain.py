@@ -142,6 +142,7 @@ class ModelWithStrain:
 
             write(dispdir_name + "/POSCAR", self._disp_supercells[i_disp])
 
+        write(workdir_name + "/POSCAR_no_disp", self._supercell)
         # prepare a jobscript
         if os.path.exists("original/job.sh"):
             shutil.copy("original/job.sh", workdir_name + "/job.sh")
@@ -174,7 +175,7 @@ class ModelWithStrain:
 
             f.write("done\n\n")
 
-            f.write("python3 ${ALAMODE_TOOLS}/extract.py --VASP=../original/VASP/POSCAR vasprun*.xml > DFSET_harmonic" + "\n\n")
+            f.write("python3 ${ALAMODE_TOOLS}/extract.py --VASP=POSCAR_no_disp vasprun*.xml > DFSET_harmonic" + "\n\n")
             f.write("mkdir -p ../DFSETS\n")
             f.write("cp DFSET_harmonic ../DFSETS/DFSET_harmonic_" + "{:0>{}}\n\n".format(self._id, 3))
 
