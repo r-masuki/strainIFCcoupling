@@ -44,7 +44,6 @@ class ModelWithStrain:
         pos_tmp = np.dot(supercell.get_positions(), np.transpose(self._Fmn))
         self._supercell.set_positions(pos_tmp)
 
-    
     @property
     def id(self):
         """Getter of id."""
@@ -65,7 +64,7 @@ class ModelWithStrain:
         "Getter of supercell."
         return self._supercell
     
-    def _get_alm_input(self):
+    def _gen_alm_crystal(self):
         BOHR_IN_AA = 0.52917721067
         lavec = self.supercell.get_cell() / BOHR_IN_AA
         xcoord = self.supercell.get_scaled_positions()
@@ -75,7 +74,7 @@ class ModelWithStrain:
         return crystal
     
     def suggest_displacements(self):
-        crystal = self._get_alm_input()
+        crystal = self._gen_alm_crystal()
 
         with ALM(*crystal) as alm:
             maxorder = 1
@@ -91,6 +90,39 @@ class ModelWithStrain:
             self._disp_patterns = alm.get_displacement_patterns(alm.maxorder)
 
             self._n_disp = len(self._disp_patterns)
+
+    def _gen_alm_dfset(self, fname):
+        BOHR_IN_AA = 0.52917721067
+        RY_IN_EV = 13.60569301
+
+        dfset = np.loadtxt(fname).reshape((-1, len(self._supercell), 6))
+        force = dfset[:, :, 3:] # * BOHR_IN_AA / RY_IN_EV
+        disp = dfset[:, :, :3] #/ BOHR_IN_AA
+
+        return disp, force
+        
+    def get_IFCs(self):
+        crystal = self._gen_alm_crystal()
+        disp_harm, force_harm = self._gen_alm_dfset("DFSETS/DFSET_harmonic_"
+                                            + "{:0>{}}".format(self._id, 3))
+
+        with ALM(*crystal) as alm:
+            maxorder = 1
+            num_elems = np.size(np.unique(self.supercell.get_atomic_numbers()))
+            cutoff_radius = np.full([maxorder, num_elems, num_elems], -1, dtype=int)
+            alm.define(maxorder, cutoff_radius, symmetrization_basis="Lattice")
+            alm.displacements = disp_harm
+            alm.forces = force_harm
+
+            optcontrol = {'linear_model': 1}
+            alm.set_optimizer_control(optcontrol)
+            alm.optimize()
+
+            if not os.path.exists("results"):
+                # If it doesn't exist, create it
+                os.mkdir("results")
+            alm.save_fc(filename="results/strain_" + "{:0>{}}".format(self._id, 3) + ".xml", 
+                        format="alamode")
 
 
     def generate_disp_supercells(self, magnitude_disp):
