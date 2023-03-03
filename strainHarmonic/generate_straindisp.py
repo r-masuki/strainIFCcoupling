@@ -177,8 +177,8 @@ class ModelWithStrain:
 
             f.write("done\n\n")
 
-            f.write("python3 ${ALAMODE_TOOLS}/extract.py --VASP=POSCAR_original vasprun*.xml > DFSET_harmonic" + "\n\n")
-            f.write("mkdir -p ../DFSETS")
+            f.write("python3 ${ALAMODE_TOOLS}/extract.py --VASP=../original/VASP/POSCAR vasprun*.xml > DFSET_harmonic" + "\n\n")
+            f.write("mkdir -p ../DFSETS\n")
             f.write("cp DFSET_harmonic ../DFSETS/DFSET_harmonic_" + "{:0>{}}\n\n".format(self._id, 3))
 
 eta = 0.005
