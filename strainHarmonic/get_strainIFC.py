@@ -17,10 +17,18 @@ import copy
 import os
 import warnings
 import shutil
+import argparse
 
 from model_with_strain import ModelWithStrain
 
-eta = 0.005
+parser = argparse.ArgumentParser()
+parser.add_argument("-smag", "--strain_mag", help = "magnitude of the strain",
+                    default = 0.005,
+                    type = float)
+
+args = parser.parse_args()
+
+smag = args.strain_mag
 
 script_path = os.path.abspath(__file__)
 script_dir = os.path.dirname(script_path)
@@ -31,14 +39,9 @@ print(json_object["strain_modes"][0]["id"])
 
 supercell = read("original/VASP/POSCAR")
 
-# print(supercell.get_cell()[:])
-
-# print(type(supercell))
-
-# print(json_object["strain_modes"])
 for item in json_object["strain_modes"]:
     print(item)
-    strain_cell = ModelWithStrain(item["id"], eta*np.array(item["mode"]), supercell)
+    strain_cell = ModelWithStrain(item["id"], smag*np.array(item["mode"]), supercell, args)
 
     strain_cell.get_IFCs()
 

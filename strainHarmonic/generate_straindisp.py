@@ -17,10 +17,34 @@ import copy
 import os
 import warnings
 import shutil
+import argparse
 
 from model_with_strain import ModelWithStrain
 
-eta = 0.005
+
+parser = argparse.ArgumentParser()
+parser.add_argument("-smag", "--strain_mag", help = "magnitude of the strain",
+                    default = 0.005,
+                    type = float)
+
+parser.add_argument("-dmag", "--disp_mag", help = "magnitude of the atomic displacements [Ang]",
+                    default = 0.01,
+                    type = float)
+
+parser.add_argument("--DFT", help = "the DFT engine",
+                    choices = ["VASP"],
+                    required = True)
+
+parser.add_argument("--no_offset", help = "do not generate structure with strain but withou atomic displacements. can be used when the offsets of the force in the strained cells are zero.",
+                    action = "store_true")
+
+parser.add_argument("--copy_potcar", help = "whether to copy POTCAR in the script. used when --DFT = VASP.",
+                    action = "store_true")
+
+args = parser.parse_args()
+
+smag = args.strain_mag
+dmag = args.disp_mag
 
 script_path = os.path.abspath(__file__)
 script_dir = os.path.dirname(script_path)
@@ -38,7 +62,7 @@ supercell = read("original/VASP/POSCAR")
 # print(json_object["strain_modes"])
 for item in json_object["strain_modes"]:
     print(item)
-    strain_cell = ModelWithStrain(item["id"], eta*np.array(item["mode"]), supercell)
+    strain_cell = ModelWithStrain(item["id"], smag*np.array(item["mode"]), supercell, args)
 
     # print(strain_cell._supercell.get_cell().cellpar())
     # print(strain_cell._supercell.get_cell()[:])
@@ -46,7 +70,7 @@ for item in json_object["strain_modes"]:
     # print(type(strain_cell._supercell.get_positions()))
 
     strain_cell.suggest_displacements()
-    strain_cell.generate_disp_supercells(0.01)
+    strain_cell.generate_disp_supercells(dmag)
 
     strain_cell.prepare_DFT_inputs()
 
