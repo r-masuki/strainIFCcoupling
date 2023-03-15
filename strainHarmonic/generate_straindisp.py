@@ -38,9 +38,6 @@ parser.add_argument("--DFT", help = "the DFT engine",
 parser.add_argument("--no_offset", help = "do not generate structure with strain but withou atomic displacements. can be used when the offsets of the force in the strained cells are zero.",
                     action = "store_true")
 
-parser.add_argument("--copy_potcar", help = "whether to copy POTCAR in the script. used when --DFT = VASP.",
-                    action = "store_true")
-
 args = parser.parse_args()
 
 smag = args.strain_mag

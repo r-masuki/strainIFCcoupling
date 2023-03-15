@@ -165,11 +165,6 @@ class ModelWithStrain:
 
 
             if(self._ctrlargs.DFT == "VASP"):
-                shutil.copy("original/VASP/KPOINTS", dispdir_name + "/KPOINTS")
-                shutil.copy("original/VASP/INCAR", dispdir_name + "/INCAR")
-                if(self._ctrlargs.copy_potcar):
-                    shutil.copy("original/VASP/POTCAR", dispdir_name + "/POTCAR")
-
                 write(dispdir_name + "/POSCAR", self._disp_supercells[i_disp])
 
 
@@ -186,10 +181,6 @@ class ModelWithStrain:
                 warnings.warn("The directory already exists.")
 
             if(self._ctrlargs.DFT == "VASP"):
-                shutil.copy("original/VASP/KPOINTS", nodispdir_name + "/KPOINTS")
-                if(self._ctrlargs.copy_potcar):
-                    shutil.copy("original/VASP/POTCAR", nodispdir_name + "/POTCAR")
-                shutil.copy("original/VASP/INCAR", nodispdir_name + "/INCAR")
                 shutil.copy(workdir_name + "/POSCAR_no_disp", nodispdir_name + "/POSCAR")
 
             
