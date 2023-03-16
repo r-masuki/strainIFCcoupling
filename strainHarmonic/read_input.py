@@ -5,7 +5,10 @@ from collections import OrderedDict
 def read_input(args, filename):
 
     if args.DFT == "VASP":
-        return [{}, {}, {}, False]
+        return {"input_data" : {}, 
+                "pseudopotentials" : {}, 
+                "kpts" : None, 
+                "koffset" : False}
 
     if args.DFT == "QE":
         namelist = {}
@@ -61,4 +64,7 @@ def read_input(args, filename):
         if len(pseudo_dic) != ntype:
             raise RuntimeError
 
-        return [namelist_flattern, pseudo_dic, kpts, koffset]
+        return {"input_data" : namelist_flattern, 
+                "pseudopotentials" : pseudo_dic, 
+                "kpts" : kpts, 
+                "koffset" : koffset}

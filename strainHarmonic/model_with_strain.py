@@ -170,10 +170,7 @@ class ModelWithStrain:
             elif(self._ctrlargs.DFT == "QE"):
                 with open(dispdir_name + "/pw.in", 'w') as f:
                     write_espresso_in(f, self._disp_supercells[i_disp], 
-                                      input_data=self._dft_input[0], 
-                                      pseudopotentials=self._dft_input[1], 
-                                      kpts=self._dft_input[2],
-                                      koffset=self._dft_input[3],
+                                      **self._dft_input,
                                       crystal_coordinates=True)
 
         if(self._ctrlargs.DFT == "VASP"):
@@ -181,12 +178,9 @@ class ModelWithStrain:
 
         elif(self._ctrlargs.DFT == "QE"):
             with open(workdir_name + "/pw.no_disp.in", 'w') as f:
-                write_espresso_in(f, self._supercell, 
-                                    input_data=self._dft_input[0], 
-                                    pseudopotentials=self._dft_input[1], 
-                                    kpts=self._dft_input[2],
-                                    koffset=self._dft_input[3],
-                                    crystal_coordinates=True)
+                write_espresso_in(f, self._supercell,
+                                  **self._dft_input,
+                                  crystal_coordinates=True)
 
         if(not self._ctrlargs.no_offset):
             nodispdir_name = workdir_name + "/nodisp"
