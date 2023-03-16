@@ -15,6 +15,8 @@ import os
 import warnings
 import shutil
 
+from read_input import *
+
 class ModelWithStrain:
     """Calculate harmonic and anharmonic interatomic force constants.
 
@@ -32,8 +34,17 @@ class ModelWithStrain:
         Strained supercell.
     """
     
-    def __init__(self, id, umn, supercell, dft_input, args):
-        self._id = id
+    def __init__(self, json_item, supercell, dft_input, args):
+        self._id = json_item["id"]
+
+        smag = 0.0
+        if args.strain_mag:
+            smag = args.strain_mag
+        else:
+            smag = json_item["strain_mag"]
+        umn = smag*get_strain_mode(json_item["mode"])
+
+        self._smag = smag
         self._umn = umn
         self._Fmn = np.eye(3) + umn
 

@@ -1,6 +1,7 @@
 from ase.io.espresso import read_espresso_in, write_espresso_in, read_fortran_namelist
 import sys
 from collections import OrderedDict
+import numpy as np
 
 def read_input(args, filename):
 
@@ -68,3 +69,35 @@ def read_input(args, filename):
                 "pseudopotentials" : pseudo_dic, 
                 "kpts" : kpts, 
                 "koffset" : koffset}
+
+
+def get_strain_mode(mode):
+    if mode == "xx":
+        return np.array([[1.0, 0.0, 0.0],
+                         [0.0, 0.0, 0.0],
+                         [0.0, 0.0, 0.0]])
+
+    elif mode == "yy":
+        return np.array([[0.0, 0.0, 0.0],
+                         [0.0, 1.0, 0.0],
+                         [0.0, 0.0, 0.0]])
+    
+    elif mode == "zz":
+        return np.array([[0.0, 0.0, 0.0],
+                         [0.0, 0.0, 0.0],
+                         [0.0, 0.0, 1.0]])
+    
+    elif mode == "yz":
+        return np.array([[0.0, 0.0, 0.0],
+                         [0.0, 0.0, 0.5],
+                         [0.0, 0.5, 0.0]])
+
+    elif mode == "zx":
+        return np.array([[0.0, 0.0, 0.5],
+                         [0.0, 0.0, 0.0],
+                         [0.5, 0.0, 0.0]])
+
+    elif mode == "xy":
+        return np.array([[0.0, 0.5, 0.0],
+                         [0.5, 0.0, 0.0],
+                         [0.0, 0.0, 0.0]])

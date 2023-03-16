@@ -25,7 +25,6 @@ from read_input import *
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-smag", "--strain_mag", help = "magnitude of the strain",
-                    default = 0.005,
                     type = float)
 
 parser.add_argument("-dmag", "--disp_mag", help = "magnitude of the atomic displacements [Ang]",
@@ -70,8 +69,7 @@ elif args.DFT == "QE":
 # print(json_object["strain_modes"])
 for item in json_object["strain_modes"]:
     print(item)
-    strain_cell = ModelWithStrain(item["id"], smag*np.array(item["mode"]), 
-                                  supercell, dft_input, args)
+    strain_cell = ModelWithStrain(item, supercell, dft_input, args)
 
     # print(strain_cell._supercell.get_cell().cellpar())
     # print(strain_cell._supercell.get_cell()[:])
