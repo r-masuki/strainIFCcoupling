@@ -40,14 +40,11 @@ class ModelWithStrain:
         self._supercell = copy.deepcopy(supercell)
         # apply deformation
         lavec_tmp = np.dot(supercell.get_cell()[:], np.transpose(self._Fmn))
-        print(self._supercell.cell)
         self._supercell.set_cell(Cell.ascell(lavec_tmp))
-        print(self._supercell.cell)
         pos_tmp = np.dot(supercell.get_positions(), np.transpose(self._Fmn))
         self._supercell.set_positions(pos_tmp)
 
         self._dft_input = dft_input
-        print(dft_input[0])
         self._ctrlargs = args
 
     @property
@@ -172,24 +169,23 @@ class ModelWithStrain:
 
             elif(self._ctrlargs.DFT == "QE"):
                 with open(dispdir_name + "/pw.in", 'w') as f:
-                    print(type(self._disp_supercells[i_disp]))
-                    print(self._disp_supercells[i_disp].cell)
                     write_espresso_in(f, self._disp_supercells[i_disp], 
                                       input_data=self._dft_input[0], 
                                       pseudopotentials=self._dft_input[1], 
-                                      crystal_coordinates=True,
-                                      format = "espresso-in")
+                                      kpts=self._dft_input[2],
+                                      koffset=self._dft_input[3],
+                                      crystal_coordinates=True)
 
         if(self._ctrlargs.DFT == "VASP"):
             write(workdir_name + "/POSCAR_no_disp", self._supercell)
 
         elif(self._ctrlargs.DFT == "QE"):
             with open(workdir_name + "/pw.no_disp.in", 'w') as f:
-                print(type(self._supercell))
-                print(self._supercell.cell)
                 write_espresso_in(f, self._supercell, 
                                     input_data=self._dft_input[0], 
                                     pseudopotentials=self._dft_input[1], 
+                                    kpts=self._dft_input[2],
+                                    koffset=self._dft_input[3],
                                     crystal_coordinates=True)
 
         if(not self._ctrlargs.no_offset):

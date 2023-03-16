@@ -5,7 +5,7 @@ from collections import OrderedDict
 def read_input(args, filename):
 
     if args.DFT == "VASP":
-        return [{}, {}]
+        return [{}, {}, {}, False]
 
     if args.DFT == "QE":
         namelist = {}
@@ -26,6 +26,9 @@ def read_input(args, filename):
         # get pseudopotential data
         ntype = namelist_flattern['ntyp']
         pseudo_dic = {}
+        kpts = [0, 0, 0]
+        koffset = False
+
         for i, entry in enumerate(otherlist):
             if "ATOMIC_SPECIES" in entry:
                 try:
@@ -34,9 +37,28 @@ def read_input(args, filename):
                         pseudo_dic[line[0]] = line[2]
                 except:
                     raise RuntimeError
-                break
+
+            if "K_POINTS" in entry:
+                try:
+                    if(not ("automatic" in entry)):
+                        raise RuntimeError("K_POINTS must be used with automatic.")
+
+                    line = otherlist[i+1].split()
+                    for j in range(3):
+                        kpts[j] = int(line[j])
+                    
+                    if (int(line[3]) == int(line[4]) == int(line[5]) == 1):
+                        koffset = True
+                    elif (int(line[3]) == int(line[4]) == int(line[5]) == 0):
+                        koffset = False
+                    else:
+                        raise RuntimeError("Offset in KPOINTS must be 0 0 0 or 1 1 1.")
+                except:
+                    raise RuntimeError
+
+            
 
         if len(pseudo_dic) != ntype:
             raise RuntimeError
 
-        return [namelist_flattern, pseudo_dic]
+        return [namelist_flattern, pseudo_dic, kpts, koffset]
