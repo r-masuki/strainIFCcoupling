@@ -41,7 +41,7 @@ supercell = read("original/VASP/POSCAR")
 
 for item in json_object["strain_modes"]:
     print(item)
-    strain_cell = ModelWithStrain(item["id"], smag*np.array(item["mode"]), supercell, args)
+    strain_cell = ModelWithStrain(item["id"], smag*np.array(item["mode"]), supercell, None, args)
 
     strain_cell.get_IFCs()
 

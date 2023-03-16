@@ -4,8 +4,8 @@
 
 from alm import ALM
 import numpy as np
-from ase.io import read
-from ase.io import write
+from ase.io import read, write
+from ase.io.espresso import read_espresso_in, write_espresso_in, read_fortran_namelist
 from ase import Atoms
 from ase.cell import Cell
 
@@ -32,7 +32,7 @@ class ModelWithStrain:
         Strained supercell.
     """
     
-    def __init__(self, id, umn, supercell, args):
+    def __init__(self, id, umn, supercell, dft_input, args):
         self._id = id
         self._umn = umn
         self._Fmn = np.eye(3) + umn
@@ -40,10 +40,14 @@ class ModelWithStrain:
         self._supercell = copy.deepcopy(supercell)
         # apply deformation
         lavec_tmp = np.dot(supercell.get_cell()[:], np.transpose(self._Fmn))
+        print(self._supercell.cell)
         self._supercell.set_cell(Cell.ascell(lavec_tmp))
+        print(self._supercell.cell)
         pos_tmp = np.dot(supercell.get_positions(), np.transpose(self._Fmn))
         self._supercell.set_positions(pos_tmp)
 
+        self._dft_input = dft_input
+        print(dft_input[0])
         self._ctrlargs = args
 
     @property
@@ -163,13 +167,30 @@ class ModelWithStrain:
             else:
                 warnings.warn("The directory already exists.")
 
-
             if(self._ctrlargs.DFT == "VASP"):
                 write(dispdir_name + "/POSCAR", self._disp_supercells[i_disp])
 
+            elif(self._ctrlargs.DFT == "QE"):
+                with open(dispdir_name + "/pw.in", 'w') as f:
+                    print(type(self._disp_supercells[i_disp]))
+                    print(self._disp_supercells[i_disp].cell)
+                    write_espresso_in(f, self._disp_supercells[i_disp], 
+                                      input_data=self._dft_input[0], 
+                                      pseudopotentials=self._dft_input[1], 
+                                      crystal_coordinates=True,
+                                      format = "espresso-in")
 
         if(self._ctrlargs.DFT == "VASP"):
             write(workdir_name + "/POSCAR_no_disp", self._supercell)
+
+        elif(self._ctrlargs.DFT == "QE"):
+            with open(workdir_name + "/pw.no_disp.in", 'w') as f:
+                print(type(self._supercell))
+                print(self._supercell.cell)
+                write_espresso_in(f, self._supercell, 
+                                    input_data=self._dft_input[0], 
+                                    pseudopotentials=self._dft_input[1], 
+                                    crystal_coordinates=True)
 
         if(not self._ctrlargs.no_offset):
             nodispdir_name = workdir_name + "/nodisp"
@@ -183,6 +204,8 @@ class ModelWithStrain:
             if(self._ctrlargs.DFT == "VASP"):
                 shutil.copy(workdir_name + "/POSCAR_no_disp", nodispdir_name + "/POSCAR")
 
+            if(self._ctrlargs.DFT == "QE"):
+                shutil.copy(workdir_name + "/pw.no_disp.in", nodispdir_name + "/pw.in")
             
         # prepare a jobscript
         if os.path.exists("original/job.sh"):
@@ -226,6 +249,8 @@ class ModelWithStrain:
                 f.write("\n\n")
                 if(self._ctrlargs.DFT == "VASP"):
                     f.write("cp nodisp/vasprun.xml vasprun0.xml")
+                elif(self._ctrlargs.DFT == "QE"):
+                    f.write("cp nodisp/pw.out pw.no_disp.out")
 
             f.write("\n\n")
             f.write("for i_disp in ")
@@ -233,8 +258,11 @@ class ModelWithStrain:
                 f.write("{:0>{}} ".format(i_disp+1, num_width))
             f.write("\ndo\n\n")
             f.write("  cd disp_${i_disp}\n")
+
             if(self._ctrlargs.DFT == "VASP"):
                 f.write("  cp vasprun.xml ../vasprun_${i_disp}.xml\n")
+            elif(self._ctrlargs.DFT == "QE"):
+                f.write("  cp pw.out ../pw.disp_${i_disp}.out\n")
             f.write("  cd ..\n\n")
 
             f.write("done\n\n")
@@ -242,10 +270,14 @@ class ModelWithStrain:
             if(self._ctrlargs.no_offset):
                 if(self._ctrlargs.DFT == "VASP"):
                     f.write("python3 ${ALAMODE_TOOLS}/extract.py --VASP=POSCAR_no_disp vasprun_*.xml > DFSET_harmonic" + "\n\n")
+                elif(self._ctrlargs.DFT == "QE"):
+                    f.write("python3 ${ALAMODE_TOOLS}/extract.py --VASP=pw.no_disp.in pw.disp_*.out > DFSET_harmonic" + "\n\n")
 
             else:
                 if(self._ctrlargs.DFT == "VASP"):
                     f.write("python3 ${ALAMODE_TOOLS}/extract.py --VASP=POSCAR_no_disp --offset vasprun0.xml vasprun_*.xml > DFSET_harmonic" + "\n\n")
+                elif(self._ctrlargs.DFT == "QE"):
+                    f.write("python3 ${ALAMODE_TOOLS}/extract.py --VASP=pw.no_disp.in --offset pw.no_disp.out pw.disp_*.out > DFSET_harmonic" + "\n\n")
 
             f.write("mkdir -p ../DFSETS\n")
             f.write("cp DFSET_harmonic ../DFSETS/DFSET_harmonic_" + "{:0>{}}\n\n".format(self._id, 3))

@@ -7,8 +7,8 @@
 
 from alm import ALM
 import numpy as np
-from ase.io import read
-from ase.io import write
+from ase.io import read, write
+from ase.io.espresso import read_espresso_in, write_espresso_in, read_fortran_namelist
 from ase import Atoms
 from ase.cell import Cell
 
@@ -20,6 +20,7 @@ import shutil
 import argparse
 
 from model_with_strain import ModelWithStrain
+from read_input import *
 
 
 parser = argparse.ArgumentParser()
@@ -32,7 +33,7 @@ parser.add_argument("-dmag", "--disp_mag", help = "magnitude of the atomic displ
                     type = float)
 
 parser.add_argument("--DFT", help = "the DFT engine",
-                    choices = ["VASP"],
+                    choices = ["VASP", "QE"],
                     required = True)
 
 parser.add_argument("--no_offset", help = "do not generate structure with strain but withou atomic displacements. can be used when the offsets of the force in the strained cells are zero.",
@@ -50,7 +51,17 @@ json_object = json.load(json_file)
 
 print(json_object["strain_modes"][0]["id"])
 
-supercell = read("original/VASP/POSCAR")
+if args.DFT == "VASP":
+    filename_in = "original/VASP/POSCAR"
+    supercell = read(filename_in)
+    dft_input = read_input(args, filename_in)
+
+elif args.DFT == "QE":
+    filename_in = "original/QE/pw.in"
+    supercell = read_espresso_in(filename_in)
+    dft_input = read_input(args, filename_in)
+
+
 
 # print(supercell.get_cell()[:])
 
@@ -59,7 +70,8 @@ supercell = read("original/VASP/POSCAR")
 # print(json_object["strain_modes"])
 for item in json_object["strain_modes"]:
     print(item)
-    strain_cell = ModelWithStrain(item["id"], smag*np.array(item["mode"]), supercell, args)
+    strain_cell = ModelWithStrain(item["id"], smag*np.array(item["mode"]), 
+                                  supercell, dft_input, args)
 
     # print(strain_cell._supercell.get_cell().cellpar())
     # print(strain_cell._supercell.get_cell()[:])
