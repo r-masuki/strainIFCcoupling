@@ -272,13 +272,13 @@ class ModelWithStrain:
                 if(self._ctrlargs.DFT == "VASP"):
                     f.write("python3 ${ALAMODE_TOOLS}/extract.py --VASP=POSCAR_no_disp vasprun_*.xml > DFSET_harmonic" + "\n\n")
                 elif(self._ctrlargs.DFT == "QE"):
-                    f.write("python3 ${ALAMODE_TOOLS}/extract.py --VASP=pw.no_disp.in pw.disp_*.out > DFSET_harmonic" + "\n\n")
+                    f.write("python3 ${ALAMODE_TOOLS}/extract.py --QE=pw.no_disp.in pw.disp_*.out > DFSET_harmonic" + "\n\n")
 
             else:
                 if(self._ctrlargs.DFT == "VASP"):
                     f.write("python3 ${ALAMODE_TOOLS}/extract.py --VASP=POSCAR_no_disp --offset vasprun0.xml vasprun_*.xml > DFSET_harmonic" + "\n\n")
                 elif(self._ctrlargs.DFT == "QE"):
-                    f.write("python3 ${ALAMODE_TOOLS}/extract.py --VASP=pw.no_disp.in --offset pw.no_disp.out pw.disp_*.out > DFSET_harmonic" + "\n\n")
+                    f.write("python3 ${ALAMODE_TOOLS}/extract.py --QE=pw.no_disp.in --offset pw.no_disp.out pw.disp_*.out > DFSET_harmonic" + "\n\n")
 
             f.write("mkdir -p ../DFSETS\n")
             f.write("cp DFSET_harmonic ../DFSETS/DFSET_harmonic_" + "{:0>{}}\n\n".format(self._id, 3))

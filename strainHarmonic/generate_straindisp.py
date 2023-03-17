@@ -48,8 +48,6 @@ script_dir = os.path.dirname(script_path)
 json_file = open(script_dir + '/strain_modes.json', 'r')
 json_object = json.load(json_file)
 
-print(json_object["strain_modes"][0]["id"])
-
 if args.DFT == "VASP":
     filename_in = "original/VASP/POSCAR"
     supercell = read(filename_in)
