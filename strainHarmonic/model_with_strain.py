@@ -55,6 +55,9 @@ class ModelWithStrain:
         pos_tmp = np.dot(supercell.get_positions(), np.transpose(self._Fmn))
         self._supercell.set_positions(pos_tmp)
 
+        self._weight = json_item["weight"]
+        self._mode = json_item["mode"]
+
         self._dft_input = dft_input
         self._ctrlargs = args
 
@@ -137,7 +140,11 @@ class ModelWithStrain:
                 os.mkdir("results")
             alm.save_fc(filename="results/strain_" + "{:0>{}}".format(self._id, 3) + ".xml", 
                         format="alamode")
-
+    
+    def write_anphon_input(self):
+        with open("results/strain_harmonic.in", "a") as f:
+            f.write("{0:4s} {1:10f} {2:10f}".format(self._mode, self._smag, self._weight))
+            f.write(" {:15s}\n".format("strain_" + "{:0>{}}".format(self._id, 3) + ".xml"))
 
     def generate_disp_supercells(self, magnitude_disp):
 
