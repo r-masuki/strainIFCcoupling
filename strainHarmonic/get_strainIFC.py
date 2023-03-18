@@ -50,7 +50,9 @@ elif args.DFT == "QE":
     supercell = read_espresso_in(filename_in)
     dft_input = read_input(args, filename_in)
 
-os.remove("results/strain_harmonic.in")
+if os.path.isfile("results/strain_harmonic.in"):
+    os.remove("results/strain_harmonic.in")
+
 for item in json_object["strain_modes"]:
     print(item)
     strain_cell = ModelWithStrain(item, supercell, dft_input, args)
