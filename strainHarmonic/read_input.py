@@ -1,3 +1,15 @@
+#
+# read_input.py
+#
+# Define some functions to read input information.
+#
+# Copyright (c) 2023 Ryota Masuki
+#
+# This file is distributed under the terms of the MIT license.
+# Please see the file 'LICENCE.txt' in the root directory
+# or http://opensource.org/licenses/mit-license.php for information.
+#
+
 from ase.io.espresso import read_espresso_in, write_espresso_in, read_fortran_namelist
 import sys
 from collections import OrderedDict

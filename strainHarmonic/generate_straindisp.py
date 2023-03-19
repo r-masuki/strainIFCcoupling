@@ -1,8 +1,13 @@
 #
-#  generate_straindisp.py
+# generate_straindisp.py
 #
-#  Generate supercells with atomic displacements
-#  and other DFT inputs for strain-harmonic IFC coupling.
+# Script to make strained supercells and write DFT-supercells with atomic displacements.
+#
+# Copyright (c) 2023 Ryota Masuki
+#
+# This file is distributed under the terms of the MIT license.
+# Please see the file 'LICENCE.txt' in the root directory
+# or http://opensource.org/licenses/mit-license.php for information.
 #
 
 from alm import ALM
