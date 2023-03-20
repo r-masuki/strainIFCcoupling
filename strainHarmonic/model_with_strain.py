@@ -94,6 +94,11 @@ class ModelWithStrain:
         "Getter of the number of patterns of displacements."
         return self._n_disp
 
+    @property
+    def mode(self):
+        "Getter of the mode of the strain."
+        return self._mode
+
     def _gen_alm_crystal(self):
         BOHR_IN_AA = 0.52917721067
         lavec = self.supercell.get_cell() / BOHR_IN_AA
@@ -149,9 +154,9 @@ class ModelWithStrain:
             alm.save_fc(filename="results/strain_" + "{:0>{}}".format(self._id, 3) + ".xml", 
                         format="alamode")
     
-    def write_anphon_input(self):
+    def write_strain_harmonic_in(self):
         with open("results/strain_harmonic.in", "a") as f:
-            f.write("{0:4s} {1:10f} {2:10f}".format(self._mode, self._smag, self._weight))
+            f.write("{0:4s} {1:25.15f} {2:25.15f}".format(self._mode, self._smag, self._weight))
             f.write(" {:15s}\n".format("strain_" + "{:0>{}}".format(self._id, 3) + ".xml"))
 
     def generate_disp_supercells(self, magnitude_disp):
@@ -297,4 +302,113 @@ class ModelWithStrain:
 
             f.write("mkdir -p ../DFSETS\n")
             f.write("cp DFSET_harmonic ../DFSETS/DFSET_harmonic_" + "{:0>{}}\n\n".format(self._id, 3))
+
+
+    def prepare_DFT_primitive(self):
+
+        # prepare working directory
+        workdir_name = "strain_" + "{:0>{}}".format(self._id, 3)
+        if not os.path.exists(workdir_name):
+            os.mkdir(workdir_name)
+        else:
+            warnings.warn("The directory already exists.")
+
+        # prepare DFT inputs
+
+        primdir_name = workdir_name + "/primitive" 
+
+        if not os.path.exists(primdir_name):
+            # If it doesn't exist, create it
+            os.mkdir(primdir_name)
+        else:
+            warnings.warn("The directory already exists.")
+
+        if(self._ctrlargs.DFT == "VASP"):
+            write(primdir_name + "/POSCAR", self._supercell)
+
+        elif(self._ctrlargs.DFT == "QE"):
+            with open(primdir_name + "/pw.in", 'w') as f:
+                write_espresso_in(f, self._supercell,
+                                  **self._dft_input,
+                                  crystal_coordinates=True)
+
+        # prepare a jobscript
+        if os.path.exists("original/job.sh"):
+            shutil.copy("original/job.sh", workdir_name + "/job_prim.sh")
+
+        DFT_commands = []
+        with open('original/DFT_primitive.sh') as f:
+            for line in f:
+                DFT_commands.append("  " + line)
+            DFT_commands.append("\n")
+
+        with open(workdir_name + "/job_prim.sh", "a") as f:
+
+            f.write("\n\n")
+            f.write("cd primitive\n")
+
+            for line in DFT_commands:
+                f.write(line)
+            f.write("cd ..")
+
+        # prepare a script to make DFSET
+        if os.path.exists("original/extract.sh"):
+            shutil.copy("original/extract.sh", workdir_name + "/extract_prim.sh")
+
+        with open(workdir_name + "/extract_prim.sh", "a") as f:
+            f.write("\n\n")
+            f.write("cd primitive\n\n")
+            # if(self._ctrlargs.DFT == "VASP"):
+            #     f.write("cp nodisp/vasprun.xml vasprun.prim.xml")
+            # elif(self._ctrlargs.DFT == "QE"):
+            #     f.write("cp nodisp/pw.out pw.prim.out")
+
+            # f.write("\n\n")
+            # f.write("for i_disp in ")
+            # for i_disp in range(self._n_disp):
+            #     f.write("{:0>{}} ".format(i_disp+1, num_width))
+            # f.write("\ndo\n\n")
+            # f.write("  cd disp_${i_disp}\n")
+# 
+            # if(self._ctrlargs.DFT == "VASP"):
+            #     f.write("  cp vasprun.xml ../vasprun_${i_disp}.xml\n")
+            # elif(self._ctrlargs.DFT == "QE"):
+            #     f.write("  cp pw.out ../pw.disp_${i_disp}.out\n")
+            # f.write("  cd ..\n\n")
+
+            # f.write("done\n\n")
+
+            if(self._ctrlargs.DFT == "VASP"):
+                f.write("python3 ${ALAMODE_TOOLS}/extract.py --VASP=POSCAR vasprun.xml > DFSET_primitive" + "\n\n")
+            elif(self._ctrlargs.DFT == "QE"):
+                f.write("python3 ${ALAMODE_TOOLS}/extract.py --QE=pw.in pw.disp_*.out > DFSET_primitive" + "\n\n")
+
+            f.write("mkdir -p ../../DFSETS_primitive\n")
+            f.write("cp DFSET_primitive ../../DFSETS_primitive/DFSET_primitive_" + "{:0>{}}\n\n".format(self._id, 3))
+
+    def write_strain_harmonic_in(self):
+
+        RYBOHR_TO_EVANG = 13.60569301/0.52917721067
+        force = [0.0, 0.0, 0.0]
+
+        if not os.path.exists("results"):
+            # If it doesn't exist, create it
+            os.mkdir("results")
+
+        with open("results/strain_force.in", "a") as fout:
+            fout.write("{0:4s} {1:25.15f}\n".format(self._mode, self._smag))
+
+
+            with open("DFSETS_primitive//DFSET_primitive_" + "{:0>{}}".format(self._id, 3)) as fin:
+                line = fin.readline()
+
+                line = fin.readline()
+                while line:                
+                    arr = line.rstrip().split()
+                    for i in range(3):
+                        force[i] = float(arr[i+3]) * RYBOHR_TO_EVANG
+                        
+
+                    fout.write("{0:25.15f} {1:25.15f} {2:25.15f}\n".format(force[0], force[1], force[2]))
+                    line = fin.readline()
 

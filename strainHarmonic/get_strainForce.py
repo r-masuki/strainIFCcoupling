@@ -1,7 +1,7 @@
 #
-# get_strainIFC.py
+# get_strainForce.py
 #
-# Script to calculate the set of IFCs from DFSET for strained supercells.
+# Script to write input of strain-force coupling.
 #
 # Copyright (c) 2023 Ryota Masuki
 #
@@ -46,24 +46,25 @@ json_object = json.load(json_file)
 
 
 if args.DFT == "VASP":
-    filename_in = "original/VASP/POSCAR"
+    filename_in = "original/VASP_primitive/POSCAR"
     supercell = read(filename_in)
     dft_input = read_input(args, filename_in)
 
 elif args.DFT == "QE":
-    filename_in = "original/QE/pw.in"
+    filename_in = "original/QE_primitive/pw.in"
     supercell = read_espresso_in(filename_in)
     dft_input = read_input(args, filename_in)
 
-if os.path.isfile("results/strain_harmonic.in"):
-    os.remove("results/strain_harmonic.in")
+if os.path.isfile("results/strain_force.in"):
+    os.remove("results/strain_force.in")
+
 
 for item in json_object["strain_modes"]:
     print(item)
     strain_cell = ModelWithStrain(item, supercell, dft_input, args)
 
-    strain_cell.get_IFCs()
     strain_cell.write_strain_harmonic_in()
+    
 
 
 

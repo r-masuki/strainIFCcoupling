@@ -1,7 +1,7 @@
 #
-# get_strainIFC.py
+# generate_strainprim.py
 #
-# Script to calculate the set of IFCs from DFSET for strained supercells.
+# Script to make strained primitive cells.
 #
 # Copyright (c) 2023 Ryota Masuki
 #
@@ -10,7 +10,6 @@
 # or http://opensource.org/licenses/mit-license.php for information.
 #
 
-from alm import ALM
 import numpy as np
 from ase.io import read, write
 from ase.io.espresso import read_espresso_in, write_espresso_in, read_fortran_namelist
@@ -27,6 +26,7 @@ import argparse
 from model_with_strain import ModelWithStrain
 from read_input import *
 
+
 parser = argparse.ArgumentParser()
 parser.add_argument("-smag", "--strain_mag", help = "magnitude of the strain",
                     type = float)
@@ -39,31 +39,44 @@ args = parser.parse_args()
 
 smag = args.strain_mag
 
-script_path = os.path.abspath(__file__)
-script_dir = os.path.dirname(script_path)
-json_file = open(script_dir + '/strain_modes.json', 'r')
-json_object = json.load(json_file)
 
+if(os.path.exists("./strain_modes.json")):
+    with open("./strain_modes.json", "r") as json_file:
+        json_object = json.load(json_file)
+
+else:
+    script_path = os.path.abspath(__file__)
+    script_dir = os.path.dirname(script_path)
+    with open(script_dir + "/strain_modes.json", "r") as json_file:
+        json_object = json.load(json_file)
 
 if args.DFT == "VASP":
-    filename_in = "original/VASP/POSCAR"
+    filename_in = "original/VASP_primitive/POSCAR"
     supercell = read(filename_in)
     dft_input = read_input(args, filename_in)
 
 elif args.DFT == "QE":
-    filename_in = "original/QE/pw.in"
+    filename_in = "original/QE_primitive/pw.in"
     supercell = read_espresso_in(filename_in)
     dft_input = read_input(args, filename_in)
 
-if os.path.isfile("results/strain_harmonic.in"):
-    os.remove("results/strain_harmonic.in")
 
+
+# print(supercell.get_cell()[:])
+
+# print(type(supercell))
+
+# print(json_object["strain_modes"])
 for item in json_object["strain_modes"]:
     print(item)
     strain_cell = ModelWithStrain(item, supercell, dft_input, args)
 
-    strain_cell.get_IFCs()
-    strain_cell.write_strain_harmonic_in()
+    # print(strain_cell._supercell.get_cell().cellpar())
+    # print(strain_cell._supercell.get_cell()[:])
+    # print(strain_cell._supercell.get_scaled_positions())
+    # print(type(strain_cell._supercell.get_positions()))
+
+    strain_cell.prepare_DFT_primitive()
 
 
 
