@@ -396,7 +396,7 @@ class ModelWithStrain:
             os.mkdir("results")
 
         with open("results/strain_force.in", "a") as fout:
-            fout.write("{0:4s} {1:25.15f}\n".format(self._mode, self._smag))
+            fout.write("{0:4s} {1:25.15f} {2:25.15f}\n".format(self._mode, self._smag, self._weight))
 
 
             with open("DFSETS_primitive//DFSET_primitive_" + "{:0>{}}".format(self._id, 3)) as fin:
