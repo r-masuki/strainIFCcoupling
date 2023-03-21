@@ -157,7 +157,7 @@ class ModelWithStrain:
     def write_strain_harmonic_in(self):
         with open("results/strain_harmonic.in", "a") as f:
             f.write("{0:4s} {1:25.15f} {2:25.15f}".format(self._mode, self._smag, self._weight))
-            f.write(" {:15s}\n".format("strain_" + "{:0>{}}".format(self._id, 3) + ".xml"))
+            f.write(" {:25s}\n".format("strain_" + "{:0>{}}".format(self._id, 3) + ".xml"))
 
     def generate_disp_supercells(self, magnitude_disp):
 
@@ -381,12 +381,12 @@ class ModelWithStrain:
             if(self._ctrlargs.DFT == "VASP"):
                 f.write("python3 ${ALAMODE_TOOLS}/extract.py --VASP=POSCAR vasprun.xml > DFSET_primitive" + "\n\n")
             elif(self._ctrlargs.DFT == "QE"):
-                f.write("python3 ${ALAMODE_TOOLS}/extract.py --QE=pw.in pw.disp_*.out > DFSET_primitive" + "\n\n")
+                f.write("python3 ${ALAMODE_TOOLS}/extract.py --QE=pw.in pw.out > DFSET_primitive" + "\n\n")
 
             f.write("mkdir -p ../../DFSETS_primitive\n")
             f.write("cp DFSET_primitive ../../DFSETS_primitive/DFSET_primitive_" + "{:0>{}}\n\n".format(self._id, 3))
 
-    def write_strain_harmonic_in(self):
+    def write_strain_force_in(self):
 
         RYBOHR_TO_EVANG = 13.60569301/0.52917721067
         force = [0.0, 0.0, 0.0]

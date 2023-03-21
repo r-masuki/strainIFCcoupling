@@ -63,7 +63,7 @@ for item in json_object["strain_modes"]:
     print(item)
     strain_cell = ModelWithStrain(item, supercell, dft_input, args)
 
-    strain_cell.write_strain_harmonic_in()
+    strain_cell.write_strain_force_in()
     
 
 
