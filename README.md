@@ -69,7 +69,7 @@ The directory structures and file names must be the same as those in `example/Zn
 * `DFT_command.sh` : The shell command to run a QE calculation in each directory. Note that the name of the output file must be `pw.out`.
 * `job.sh` : The header of the shell script for the QE calculations.
 * `extract.sh` : The header of the shell script to extract DFSET. Please define ALAMODE_TOOLS.
-* `QE` : QE input files without strain or atomic displacements. The name of the input file must be `pw.in`.
+* `QE` : QE input files without strain or atomic displacements. The name of the input file need to be `pw.in` and `ibrav` need to be set as zero.
 
 #### How to run
 
@@ -125,7 +125,7 @@ The directory structures and file names must be the same as those in `example/Zn
 * `DFT_primitive.sh` : The shell command to run a QE calculation in each directory. The name of the output file must be `pw.out`
 * `job.sh` : The header of the shell script for the QE calculations.
 * `extract.sh` : The header of the shell script to extract DFSET. Please define ALAMODE_TOOLS.
-* `QE_primitive` : VASP input files without strain or atomic displacements.  The name of the input file need to be `pw.in`.
+* `QE_primitive` : VASP input files without strain or atomic displacements. The name of the input file need to be `pw.in` and `ibrav` need to be set as zero.
 
 #### How to run
 

@@ -39,6 +39,10 @@ def read_input(args, filename):
             for key2, val2 in namelist[key].items():
                 namelist_flattern[key2] = val2
 
+        # check input
+        if namelist_flattern["ibrav"] != 0:
+            raise RuntimeError("ibrav must be 0")
+
         # get pseudopotential data
         ntype = namelist_flattern['ntyp']
         pseudo_dic = {}
