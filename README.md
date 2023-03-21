@@ -5,18 +5,18 @@ The obtained strain-IFC coupling constants can be used in structural optimizatio
 
 In calculating the coupling between strain and harmonic IFCs
 
-$\frac{\partial \Phi_{\mu_1 \mu_2}(\bm{0}\alpha_1, \bm{R}\alpha_2)}{\partial u_{\mu \nu}}$,
+$\frac{\partial \Phi_{\mu_1 \mu_2}({0}\alpha_1, {R}\alpha_2)}{\partial u_{\mu \nu}}$,
 
 we use the frozen-phonon calculation in strained supercells using the ALM package.
 
 The strain-force coupling
 
-$\frac{\partial \Phi_{\mu_1}(\bm{0}\alpha_1)}{\partial u_{\mu \nu}}$
+$\frac{\partial \Phi_{\mu_1}({0}\alpha_1)}{\partial u_{\mu \nu}}$
 
 are obtained by calculating the atomic forces in strained primitive cells using external DFT engines.
 
 ## Usage
----
+
 We support interface with VASP and Quantum Espresso as external DFT packages, which is used to calculate atomic forces for strained supercells and primitive cells.
 
 ### strain-harmonic coupling (VASP)
@@ -39,7 +39,7 @@ From the command line, please run
 ```
 > python3 generate_straindisp.py --DFT=VASP -smag=0.005 -dmag=0.01
 ```
-`-smag` is the magnitude of the strain. `-dmag` defines the magnitude of atomic displacements in $\AA$. You can also use `--no_offset` option if the atomic forces are zero when strain is applied, which condition is not checked in the script.
+`-smag` is the magnitude of the strain. `-dmag` defines the magnitude of atomic displacements in Angstrom. You can also use `--no_offset` option if the atomic forces are zero when strain is applied, which condition is not checked in the script.
 
 Here, six directories of different strain patterns will be generated.
 If you run the VASP calculation in supercomputers or cluster computers, copy the whole working folder (`BaTiO3_VASP` in this case).
@@ -133,7 +133,7 @@ The flow of the calculation is the same as in the previous section.
 Please replace `--DFT=VASP` by `--DFT=QE` when running the python script.
 
 ## Dependencies
----
+
 - ALM [[link](https://github.com/ttadano/ALM)]
 - ase
 - numpy
@@ -141,7 +141,7 @@ Please replace `--DFT=VASP` by `--DFT=QE` when running the python script.
 Since we use the python interface of ALM, a user need to get ALM [[link](https://github.com/ttadano/ALM)], which is provided separately from the ALAMODE package. Please build ALM using conda, which is explained in [[link](https://alm.readthedocs.io/en/develop/compile-with-conda-packages.html#building-alm-using-conda)].
 
 ## References
----
+
 [1] R. Masuki, T. Nomoto, R. Arita, T. Tadano. "Ab initio structural optimization at finite temperatures based on anharmonic phonon theory: Application to the structural phase transitions of BaTiO3" [Physical Review B 106, 224104 (2022)](https://doi.org/10.1103/PhysRevB.106.224104)
 
 [2] R. Masuki, T. Nomoto, R. Arita, T. Tadano. "Full optimization of quasiharmonic free energy with anharmonic lattice model: Application to thermal expansion and pyroelectricity of wurtzite GaN and ZnO" [arXiv:2302.04537 (2023)](https://doi.org/10.1103/PhysRevB.106.224104)
