@@ -1,0 +1,1 @@
+mpirun -np $NUMPRO $TOPDIR/pw.x  < pw.in > pw.out

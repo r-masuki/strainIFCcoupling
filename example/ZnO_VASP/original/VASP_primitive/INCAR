@@ -1,0 +1,19 @@
+SYSTEM = ZnO
+EDIFF = 1.0e-8
+PREC = Accurate
+
+ENCUT = 600
+ADDGRID = .TRUE.
+LREAL=.FALSE.
+ISMEAR = 0
+SIGMA = 0.05
+
+NPAR = 16
+NCORE = 1
+
+LWAVE = .FALSE.
+LCHARG = .FALSE.
+
+ISIF = 0
+
+GGA = PS # use PBEsol

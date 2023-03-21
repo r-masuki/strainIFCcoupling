@@ -1,0 +1,1 @@
+ALAMODE_TOOLS=.../tools
