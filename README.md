@@ -26,7 +26,7 @@ We support interface with VASP and Quantum Espresso as external DFT packages, wh
 The directory structures and file names must be the same as those in `example/BaTiO3_VASP`. Please make `original` directory and prepare the following inputs. 
 
 * `DFT_command.sh` : The shell command to run a VASP calculation in each directory. We recommend making INCAR, KPOINTS and POTCAR here because they are not generated in the python script.
-* `job.sh` : The header of the shell script for the VASP calculations.
+* `job.sh` : The header and footer of the shell script for the VASP calculations. `job.sh` must include a line "RUN_DFT_CALCULATION", which is replaced by the command to run VASP calculations.
 * `extract.sh` : The header of the shell script to extract DFSET. Please define ALAMODE_TOOLS.
 * `VASP` : VASP input files without strain or atomic displacements. 
 
@@ -67,7 +67,7 @@ Note that the value of `-smag` need to be the same as in `generate_straindisp.py
 The directory structures and file names must be the same as those in `example/ZnO_QE`. Please make `original` directory and prepare the following inputs. 
 
 * `DFT_command.sh` : The shell command to run a QE calculation in each directory. Note that the name of the output file must be `pw.out`.
-* `job.sh` : The header of the shell script for the QE calculations.
+* `job.sh` : The header and footer of the shell script for the QE calculations. `job.sh` must include a line "RUN_DFT_CALCULATION", which is replaced by the command to run QE calculations.
 * `extract.sh` : The header of the shell script to extract DFSET. Please define ALAMODE_TOOLS.
 * `QE` : QE input files without strain or atomic displacements. The name of the input file need to be `pw.in` and `ibrav` need to be set as zero.
 
@@ -83,7 +83,7 @@ Please replace `--DFT=VASP` by `--DFT=QE` when running the python script.
 The directory structures and file names must be the same as those in `example/ZnO_VASP`. Please make `original` directory and prepare the following inputs. 
 
 * `DFT_primitive.sh` : The shell command to run a VASP calculation in each directory.
-* `job.sh` : The header of the shell script for the VASP calculations.
+* `job.sh` : The header and footer of the shell script for the VASP calculations. `job.sh` must include a line "RUN_DFT_CALCULATION", which is replaced by the command to run VASP calculations.
 * `extract.sh` : The header of the shell script to extract DFSET. Please define ALAMODE_TOOLS.
 * `VASP_primitive` : VASP input files without strain or atomic displacements. 
 
@@ -123,7 +123,7 @@ Note that the value of `-smag` need to be the same as in `generate_strainprim.py
 The directory structures and file names must be the same as those in `example/ZnO_QE`. Please make `original` directory and prepare the following inputs. 
 
 * `DFT_primitive.sh` : The shell command to run a QE calculation in each directory. The name of the output file must be `pw.out`
-* `job.sh` : The header of the shell script for the QE calculations.
+* `job.sh` : The header and footer of the shell script for the QE calculations. `job.sh` must include a line "RUN_DFT_CALCULATION", which is replaced by the command to run QE calculations.
 * `extract.sh` : The header of the shell script to extract DFSET. Please define ALAMODE_TOOLS.
 * `QE_primitive` : VASP input files without strain or atomic displacements. The name of the input file need to be `pw.in` and `ibrav` need to be set as zero.
 

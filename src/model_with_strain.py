@@ -227,39 +227,42 @@ class ModelWithStrain:
 
             if(self._ctrlargs.DFT == "QE"):
                 shutil.copy(workdir_name + "/pw.no_disp.in", nodispdir_name + "/pw.in")
-            
+        
         # prepare a jobscript
-        if os.path.exists("original/job.sh"):
-            shutil.copy("original/job.sh", workdir_name + "/job.sh")
-
         DFT_commands = []
-        with open('original/DFT_command.sh') as f:
+        with open("original/DFT_command.sh") as f:
             for line in f:
                 DFT_commands.append("  " + line)
             DFT_commands.append("\n")
 
-        with open(workdir_name + "/job.sh", "a") as f:
+        with open("original/job.sh") as fin:
+            with open(workdir_name + "/job.sh", "w") as fout:
 
-            if (not self._ctrlargs.no_offset):
-                f.write("\n\n")
-                f.write("cd nodisp\n")
+                for line in fin:
+                    if("RUN_DFT_CALCULATION" in line):
+                        # write DFT calculation part
+                        if (not self._ctrlargs.no_offset):
+                            fout.write("cd nodisp\n")
 
-                for line in DFT_commands:
-                    f.write(line)
-                f.write("cd ..")
+                            for line2 in DFT_commands:
+                                fout.write(line2)
+                            fout.write("cd ..")
 
-            f.write("\n\n")
-            f.write("for i_disp in ")
-            for i_disp in range(self._n_disp):
-                f.write("{:0>{}} ".format(i_disp+1, num_width))
-            f.write("\ndo\n\n")
+                        fout.write("\n\n")
+                        fout.write("for i_disp in ")
+                        for i_disp in range(self._n_disp):
+                            fout.write("{:0>{}} ".format(i_disp+1, num_width))
+                        fout.write("\ndo\n\n")
 
-            f.write("  cd disp_${i_disp}\n\n")
-            for line in DFT_commands:
-                f.write(line)
+                        fout.write("  cd disp_${i_disp}\n\n")
+                        for line in DFT_commands:
+                            fout.write(line)
 
-            f.write("  cd ..\n\n")
-            f.write("done")
+                        fout.write("  cd ..\n\n")
+                        fout.write("done\n\n")
+                    else:
+                        # write header and footer
+                        fout.write(line)
 
         # prepare a script to make DFSET
         if os.path.exists("original/extract.sh"):
@@ -333,8 +336,6 @@ class ModelWithStrain:
                                   crystal_coordinates=True)
 
         # prepare a jobscript
-        if os.path.exists("original/job.sh"):
-            shutil.copy("original/job.sh", workdir_name + "/job_prim.sh")
 
         DFT_commands = []
         with open('original/DFT_primitive.sh') as f:
@@ -342,14 +343,19 @@ class ModelWithStrain:
                 DFT_commands.append("  " + line)
             DFT_commands.append("\n")
 
-        with open(workdir_name + "/job_prim.sh", "a") as f:
+        with open("original/job.sh") as fin:
+            with open(workdir_name + "/job_prim.sh", "w") as fout:
+                for line in fin:
+                    if("RUN_DFT_CALCULATION" in line):
+                        # write DFT calculation part
+                        fout.write("cd primitive\n")
 
-            f.write("\n\n")
-            f.write("cd primitive\n")
-
-            for line in DFT_commands:
-                f.write(line)
-            f.write("cd ..")
+                        for line2 in DFT_commands:
+                            fout.write(line2)
+                        fout.write("cd ..\n\n")
+                    else:
+                        # write header and footer
+                        fout.write(line)
 
         # prepare a script to make DFSET
         if os.path.exists("original/extract.sh"):
