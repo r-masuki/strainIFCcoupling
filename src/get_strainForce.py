@@ -39,10 +39,15 @@ args = parser.parse_args()
 
 smag = args.strain_mag
 
-script_path = os.path.abspath(__file__)
-script_dir = os.path.dirname(script_path)
-json_file = open(script_dir + '/strain_modes.json', 'r')
-json_object = json.load(json_file)
+if(os.path.exists("./strain_modes.json")):
+    with open("./strain_modes.json", "r") as json_file:
+        json_object = json.load(json_file)
+
+else:
+    script_path = os.path.abspath(__file__)
+    script_dir = os.path.dirname(script_path)
+    with open(script_dir + "/strain_modes.json", "r") as json_file:
+        json_object = json.load(json_file)
 
 
 if args.DFT == "VASP":
